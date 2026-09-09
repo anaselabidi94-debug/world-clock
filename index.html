@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>معرفة اوقات العالم</title>
+  <style>
+    body {
+      margin: 0; padding: 0; height: 100vh;
+      display: flex; justify-content: center; align-items: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+      background-size: 400% 400%;
+      animation: gradient 15s ease infinite;
+      direction: rtl;
+    }
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .clock-container { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; }
+    .clock-card {
+      background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px);
+      padding: 30px 50px; border-radius: 20px; text-align: center; color: white; min-width: 200px;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2); border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+    .clock-card h2 { margin: 0 0 10px 0; font-size: 1.8rem; }
+    .time { font-size: 3rem; font-weight: bold; margin-bottom: 5px; }
+    .date { font-size: 1.1rem; opacity: 0.8; }
+  </style>
+</head>
+<body>
+  <div class="clock-container">
+    <div class="clock-card">
+      <h2>المغرب 🇲🇦</h2>
+      <div id="morocco-time" class="time">00:00:00</div>
+      <div id="morocco-date" class="date">--/--/----</div>
+    </div>
+    <div class="clock-card">
+      <h2>بكين 🇨🇳</h2>
+      <div id="china-time" class="time">00:00:00</div>
+      <div id="china-date" class="date">--/--/----</div>
+    </div>
+  </div>
+  <script>
+    function updateClocks() {
+      const now = new Date();
+      const moroccoTimeStr = now.toLocaleTimeString('en-US', { timeZone: 'Africa/Casablanca', hour12: false });
+      const moroccoDateStr = now.toLocaleDateString('ar-MA', { timeZone: 'Africa/Casablanca', year: 'numeric', month: 'long', day: 'numeric' });
+      const chinaTimeStr = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Shanghai', hour12: false });
+      const chinaDateStr = now.toLocaleDateString('ar-EG', { timeZone: 'Asia/Shanghai', year: 'numeric', month: 'long', day: 'numeric' });
+      document.getElementById('morocco-time').textContent = moroccoTimeStr;
+      document.getElementById('morocco-date').textContent = moroccoDateStr;
+      document.getElementById('china-time').textContent = chinaTimeStr;
+      document.getElementById('china-date').textContent = chinaDateStr;
+    }
+    setInterval(updateClocks, 1000);
+    updateClocks();
+  </script>
+</body>
+</html>
