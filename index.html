@@ -15,8 +15,8 @@
       direction: rtl;
       position: relative;
       box-sizing: border-box;
-      padding-top: 80px;
-      overflow: hidden; /* لمنع ظهور شريط التمرير عند تحرك الزخارف */
+      padding: 90px 20px 40px;
+      overflow-x: hidden;
     }
     @keyframes gradient {
       0% { background-position: 0% 50%; }
@@ -24,18 +24,14 @@
       100% { background-position: 0% 50%; }
     }
 
-    /* === زخارف الخلفية (Background Orbs) === */
+    /* === زخارف الخلفية === */
     .bg-decorations {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      overflow: hidden;
-      z-index: 1;
-      pointer-events: none;
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%; overflow: hidden;
+      z-index: 1; pointer-events: none;
     }
     .orb {
-      position: absolute;
-      border-radius: 50%;
+      position: absolute; border-radius: 50%;
       background: rgba(255, 255, 255, 0.12);
       backdrop-filter: blur(5px);
       box-shadow: 0 0 40px rgba(255, 255, 255, 0.2);
@@ -51,62 +47,67 @@
       50% { transform: translateY(-30px) rotate(180deg) scale(1.1); }
     }
     
-    /* === المحتوى الرئيسي === */
     .main-title {
-      position: absolute;
-      top: 25px;
-      left: 0; right: 0;
-      margin: 0 auto;
-      color: white;
-      font-size: 2.2rem;
-      text-align: center;
-      text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-      width: 100%;
-      z-index: 2;
+      position: absolute; top: 20px; left: 0; right: 0; margin: 0 auto;
+      color: white; font-size: 2rem; text-align: center;
+      text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); width: 100%; z-index: 2;
     }
 
-    .clock-container { 
-      display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; margin-top: 20px; 
-      z-index: 2;
+    .container {
+      display: flex; flex-direction: column; align-items: center; gap: 25px;
+      z-index: 2; width: 100%; max-width: 700px;
     }
+
+    .clock-container { display: flex; gap: 25px; flex-wrap: wrap; justify-content: center; width: 100%; }
     
-    .clock-card {
+    .clock-card, .converter-card {
       background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(12px);
-      padding: 25px 40px; border-radius: 20px; text-align: center; color: white; min-width: 250px;
+      border-radius: 20px; text-align: center; color: white;
       box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2); border: 1px solid rgba(255, 255, 255, 0.25);
       transition: transform 0.3s ease;
     }
-    .clock-card:hover {
-      transform: translateY(-5px);
-    }
+    .clock-card { padding: 20px 35px; flex: 1; min-width: 220px; }
+    .clock-card:hover, .converter-card:hover { transform: translateY(-3px); }
     
-    .clock-card h2 { margin: 0 0 10px 0; font-size: 1.8rem; }
-    
+    .clock-card h2 { margin: 0 0 10px 0; font-size: 1.6rem; }
     .temp-badge {
-      display: inline-block;
-      background: rgba(0, 0, 0, 0.25);
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-size: 1rem;
-      margin-bottom: 10px;
+      display: inline-block; background: rgba(0, 0, 0, 0.25);
+      padding: 4px 12px; border-radius: 12px; font-size: 0.95rem; margin-bottom: 10px;
     }
-    
-    .time { font-size: 2.8rem; font-weight: bold; margin-bottom: 5px; }
-    .date { font-size: 1.1rem; opacity: 0.85; margin-bottom: 15px; }
+    .time { font-size: 2.6rem; font-weight: bold; margin-bottom: 5px; }
+    .date { font-size: 1rem; opacity: 0.85; margin-bottom: 15px; }
     
     .pop-section {
       border-top: 1px solid rgba(255, 255, 255, 0.3);
-      padding-top: 10px;
-      margin-top: 10px;
+      padding-top: 10px; margin-top: 10px;
     }
-    
     .pop-label { font-size: 0.85rem; opacity: 0.9; margin-bottom: 4px; }
-    .pop-count { font-size: 1.3rem; font-weight: bold; color: #fff; }
+    .pop-count { font-size: 1.2rem; font-weight: bold; }
+
+    /* === بطاقة محول العملات === */
+    .converter-card { width: 100%; padding: 20px 30px; box-sizing: border-box; }
+    .converter-card h3 { margin: 0 0 15px 0; font-size: 1.3rem; }
+    
+    .converter-grid {
+      display: flex; gap: 15px; align-items: center; justify-content: center; flex-wrap: wrap;
+    }
+    .input-group {
+      display: flex; flex-direction: column; align-items: flex-start; gap: 5px; flex: 1; min-width: 140px;
+    }
+    .input-group label { font-size: 0.85rem; opacity: 0.9; }
+    .input-group input {
+      width: 100%; padding: 10px 12px; border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      background: rgba(0, 0, 0, 0.2); color: white;
+      font-size: 1.1rem; font-weight: bold; box-sizing: border-box; outline: none;
+    }
+    .input-group input:focus { border-color: white; background: rgba(0, 0, 0, 0.3); }
+    .exchange-icon { font-size: 1.5rem; margin-top: 18px; }
+    .rate-info { font-size: 0.8rem; opacity: 0.8; margin-top: 12px; }
   </style>
 </head>
 <body>
 
-  <!-- زخارف الخلفية المضافة -->
   <div class="bg-decorations">
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
@@ -116,54 +117,64 @@
   
   <h1 class="main-title">تطبيق أَنَس لأوقات المغرب والصين</h1>
 
-  <div class="clock-container">
-    <!-- بطاقة فاس (المغرب) -->
-    <div class="clock-card">
-      <h2>فاس 🇲🇦</h2>
-      <div id="fez-temp" class="temp-badge">جاري جلب الطقس...</div>
-      <div id="fez-time" class="time">00:00:00</div>
-      <div id="fez-date" class="date">--/--/----</div>
-      
-      <div class="pop-section">
-        <div class="pop-label">عدد سكان المغرب (مباشر)</div>
-        <div id="morocco-pop" class="pop-count">--</div>
+  <div class="container">
+    <div class="clock-container">
+      <!-- فاس -->
+      <div class="clock-card">
+        <h2>فاس 🇲🇦</h2>
+        <div id="fez-temp" class="temp-badge">جاري الجلب...</div>
+        <div id="fez-time" class="time">00:00:00</div>
+        <div id="fez-date" class="date">--/--/----</div>
+        <div class="pop-section">
+          <div class="pop-label">عدد سكان المغرب (مباشر)</div>
+          <div id="morocco-pop" class="pop-count">--</div>
+        </div>
+      </div>
+
+      <!-- هانزونغ -->
+      <div class="clock-card">
+        <h2>هانزونغ 🇨🇳</h2>
+        <div id="hanzhong-temp" class="temp-badge">جاري الجلب...</div>
+        <div id="hanzhong-time" class="time">00:00:00</div>
+        <div id="hanzhong-date" class="date">--/--/----</div>
+        <div class="pop-section">
+          <div class="pop-label">عدد سكان الصين (مباشر)</div>
+          <div id="china-pop" class="pop-count">--</div>
+        </div>
       </div>
     </div>
 
-    <!-- بطاقة هانزونغ (الصين) -->
-    <div class="clock-card">
-      <h2>هانزونغ 🇨🇳</h2>
-      <div id="hanzhong-temp" class="temp-badge">جاري جلب الطقس...</div>
-      <div id="hanzhong-time" class="time">00:00:00</div>
-      <div id="hanzhong-date" class="date">--/--/----</div>
-      
-      <div class="pop-section">
-        <div class="pop-label">عدد سكان الصين (مباشر)</div>
-        <div id="china-pop" class="pop-count">--</div>
+    <!-- بطاقة محول العملات -->
+    <div class="converter-card">
+      <h3>💱 محول العملات المباشر</h3>
+      <div class="converter-grid">
+        <div class="input-group">
+          <label for="mad-input">الدرهم المغربي (MAD)</label>
+          <input type="number" id="mad-input" placeholder="0" value="100">
+        </div>
+        <div class="exchange-icon">⇄</div>
+        <div class="input-group">
+          <label for="cny-input">اليوان الصيني (CNY)</label>
+          <input type="number" id="cny-input" placeholder="0">
+        </div>
       </div>
+      <div class="rate-info" id="rate-info">جاري جلب سعر الصرف...</div>
     </div>
   </div>
 
   <script>
-    // 1. تحديث الوقت والتاريخ بالأرقام 123456
+    // 1. الوقت والتاريخ
     function updateClocks() {
       const now = new Date();
-      
-      const fezTimeStr = now.toLocaleTimeString('en-US', { timeZone: 'Africa/Casablanca', hour12: false });
-      const fezDateStr = now.toLocaleDateString('en-US', { timeZone: 'Africa/Casablanca', year: 'numeric', month: 'numeric', day: 'numeric' });
-      
-      const hanzhongTimeStr = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Shanghai', hour12: false });
-      const hanzhongDateStr = now.toLocaleDateString('en-US', { timeZone: 'Asia/Shanghai', year: 'numeric', month: 'numeric', day: 'numeric' });
-      
-      document.getElementById('fez-time').textContent = fezTimeStr;
-      document.getElementById('fez-date').textContent = fezDateStr;
-      document.getElementById('hanzhong-time').textContent = hanzhongTimeStr;
-      document.getElementById('hanzhong-date').textContent = hanzhongDateStr;
+      document.getElementById('fez-time').textContent = now.toLocaleTimeString('en-US', { timeZone: 'Africa/Casablanca', hour12: false });
+      document.getElementById('fez-date').textContent = now.toLocaleDateString('en-US', { timeZone: 'Africa/Casablanca', year: 'numeric', month: 'numeric', day: 'numeric' });
+      document.getElementById('hanzhong-time').textContent = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Shanghai', hour12: false });
+      document.getElementById('hanzhong-date').textContent = now.toLocaleDateString('en-US', { timeZone: 'Asia/Shanghai', year: 'numeric', month: 'numeric', day: 'numeric' });
     }
     setInterval(updateClocks, 1000);
     updateClocks();
 
-    // 2. جلب درجة الحرارة الفعلية المباشرة (Open-Meteo API)
+    // 2. حالة الطقس
     async function fetchWeather() {
       try {
         const fezRes = await fetch('https://api.open-meteo.com/v1/forecast?latitude=34.0333&longitude=-5.0000&current_weather=true');
@@ -181,19 +192,55 @@
     fetchWeather();
     setInterval(fetchWeather, 600000);
 
-    // 3. عداد السكان المباشر
+    // 3. عدد السكان
     let moroccoPop = 38000000;
     let chinaPop = 1411750000;
-
     function updatePopulation() {
       if (Math.random() > 0.6) moroccoPop += 1;
       if (Math.random() > 0.3) chinaPop += Math.floor(Math.random() * 2);
-
       document.getElementById('morocco-pop').textContent = moroccoPop.toLocaleString('en-US');
       document.getElementById('china-pop').textContent = chinaPop.toLocaleString('en-US');
     }
     setInterval(updatePopulation, 3000);
     updatePopulation();
+
+    // 4. محول العملات (يتحدث كل 12 ساعة)
+    let madToCnyRate = 0.72; // قيمة افتراضية احتياطية
+
+    async function fetchExchangeRate() {
+      try {
+        const res = await fetch('https://open.er-api.com/v6/latest/MAD');
+        const data = await res.json();
+        if (data && data.rates && data.rates.CNY) {
+          madToCnyRate = data.rates.CNY;
+          document.getElementById('rate-info').textContent = `1 درهم مغربي = ${madToCnyRate.toFixed(4)} يوان صيني (يتحدث كل 12 ساعة)`;
+          convertMADtoCNY();
+        }
+      } catch (err) {
+        document.getElementById('rate-info').textContent = `سعر الصرف التقديري: 1 MAD ≈ ${madToCnyRate} CNY`;
+      }
+    }
+
+    const madInput = document.getElementById('mad-input');
+    const cnyInput = document.getElementById('cny-input');
+
+    function convertMADtoCNY() {
+      const madVal = parseFloat(madInput.value);
+      if (isNaN(madVal)) { cnyInput.value = ''; return; }
+      cnyInput.value = (madVal * madToCnyRate).toFixed(2);
+    }
+
+    function convertCNYtoMAD() {
+      const cnyVal = parseFloat(cnyInput.value);
+      if (isNaN(cnyVal)) { madInput.value = ''; return; }
+      madInput.value = (cnyVal / madToCnyRate).toFixed(2);
+    }
+
+    madInput.addEventListener('input', convertMADtoCNY);
+    cnyInput.addEventListener('input', convertCNYtoMAD);
+
+    fetchExchangeRate();
+    setInterval(fetchExchangeRate, 12 * 60 * 60 * 1000); // 12 ساعة
   </script>
 </body>
 </html>
