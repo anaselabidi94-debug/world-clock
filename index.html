@@ -23,15 +23,14 @@
       100% { background-position: 0% 50%; }
     }
     
-    /* تثبيت العنوان في أعلى الصفحة تماماً */
     .main-title {
       position: absolute;
-      top: 20px;
+      top: 25px;
       left: 0;
       right: 0;
       margin: 0 auto;
       color: white;
-      font-size: 2rem;
+      font-size: 2.2rem;
       text-align: center;
       text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
       width: 100%;
@@ -57,7 +56,7 @@
     }
     
     .time { font-size: 2.8rem; font-weight: bold; margin-bottom: 5px; }
-    .date { font-size: 1rem; opacity: 0.85; margin-bottom: 15px; }
+    .date { font-size: 1.1rem; opacity: 0.85; margin-bottom: 15px; }
     
     .pop-section {
       border-top: 1px solid rgba(255, 255, 255, 0.3);
@@ -65,7 +64,7 @@
       margin-top: 10px;
     }
     
-    .pop-label { font-size: 0.85rem; opacity: 0.9; }
+    .pop-label { font-size: 0.85rem; opacity: 0.9; margin-bottom: 4px; }
     .pop-count { font-size: 1.3rem; font-weight: bold; color: #fff; }
   </style>
 </head>
@@ -102,15 +101,15 @@
   </div>
 
   <script>
-    // 1. تحديث الوقت والتاريخ
+    // 1. تحديث الوقت والتاريخ بالأرقام العادية (123456)
     function updateClocks() {
       const now = new Date();
       
       const fezTimeStr = now.toLocaleTimeString('en-US', { timeZone: 'Africa/Casablanca', hour12: false });
-      const fezDateStr = now.toLocaleDateString('ar-MA', { timeZone: 'Africa/Casablanca', year: 'numeric', month: 'long', day: 'numeric' });
+      const fezDateStr = now.toLocaleDateString('en-US', { timeZone: 'Africa/Casablanca', year: 'numeric', month: 'numeric', day: 'numeric' });
       
       const hanzhongTimeStr = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Shanghai', hour12: false });
-      const hanzhongDateStr = now.toLocaleDateString('ar-EG', { timeZone: 'Asia/Shanghai', year: 'numeric', month: 'long', day: 'numeric' });
+      const hanzhongDateStr = now.toLocaleDateString('en-US', { timeZone: 'Asia/Shanghai', year: 'numeric', month: 'numeric', day: 'numeric' });
       
       document.getElementById('fez-time').textContent = fezTimeStr;
       document.getElementById('fez-date').textContent = fezDateStr;
@@ -123,12 +122,10 @@
     // 2. جلب درجة الحرارة الفعلية المباشرة (Open-Meteo API)
     async function fetchWeather() {
       try {
-        // فاس: Latitude: 34.0333, Longitude: -5.0000
         const fezRes = await fetch('https://api.open-meteo.com/v1/forecast?latitude=34.0333&longitude=-5.0000&current_weather=true');
         const fezData = await fezRes.json();
         document.getElementById('fez-temp').textContent = `🌡️ ${fezData.current_weather.temperature}°C`;
 
-        // هانزونغ: Latitude: 33.0728, Longitude: 107.0303
         const hanRes = await fetch('https://api.open-meteo.com/v1/forecast?latitude=33.0728&longitude=107.0303&current_weather=true');
         const hanData = await hanRes.json();
         document.getElementById('hanzhong-temp').textContent = `🌡️ ${hanData.current_weather.temperature}°C`;
@@ -138,19 +135,19 @@
       }
     }
     fetchWeather();
-    setInterval(fetchWeather, 600000); // تحديث الطقس كل 10 دقائق
+    setInterval(fetchWeather, 600000);
 
-    // 3. محاكاة العداد المباشر للسكان
+    // 3. عداد السكان المباشر باستخدام أرقام 123456
     let moroccoPop = 38000000;
     let chinaPop = 1411750000;
 
     function updatePopulation() {
-      // إضافات عشوائية لمحاكاة نمو السكان المباشر
       if (Math.random() > 0.6) moroccoPop += 1;
       if (Math.random() > 0.3) chinaPop += Math.floor(Math.random() * 2);
 
-      document.getElementById('morocco-pop').textContent = moroccoPop.toLocaleString('ar-EG');
-      document.getElementById('china-pop').textContent = chinaPop.toLocaleString('ar-EG');
+      // استبدال 'ar-EG' بـ 'en-US' لعرض الأرقام الإنجليزية الإعتيادية
+      document.getElementById('morocco-pop').textContent = moroccoPop.toLocaleString('en-US');
+      document.getElementById('china-pop').textContent = chinaPop.toLocaleString('en-US');
     }
     setInterval(updatePopulation, 3000);
     updatePopulation();
