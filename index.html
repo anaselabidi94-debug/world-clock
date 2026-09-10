@@ -49,7 +49,6 @@
     .counter-val { font-size: 2.2rem; font-weight: bold; font-family: monospace; }
     .update-time { font-size: 0.85rem; opacity: 0.6; margin-top: 10px; }
 
-    /* تصميم خانات حاسبة العملات المبسطة */
     .converter-group {
       display: flex; flex-direction: column; gap: 10px; align-items: center;
     }
@@ -76,7 +75,7 @@
       <div id="morocco-date" class="date">--/--/----</div>
     </div>
     <div class="clock-card">
-      <h2>بكين 🇨🇳</h2>
+      <h2>هانزونغ 🇨🇳</h2>
       <div id="china-time" class="time">00:00:00</div>
       <div id="china-date" class="date">--/--/----</div>
     </div>
@@ -113,7 +112,6 @@
     const basePopulation = 1412262052; 
     const baseTime = new Date("2026-09-10T13:00:00").getTime();
     
-    // قيم افتراضية لأسعار الصرف حتى يتم جلبها حية
     let madToCnyRate = 0.715;
     let cnyToMadRate = 1.395;
 
@@ -126,10 +124,8 @@
         madToCnyRate = data.rates.CNY;
         cnyToMadRate = (1 / madToCnyRate);
 
-        // حساب القيمة المبدئية داخل الخانات فور تحميل الأسعار
         updateFromMad();
         
-        const now = new Date();
         document.getElementById('rate-update-status').textContent = "تحديث تلقائي فور تغير الأسعار العالمية";
       } catch (error) {
         updateFromMad();
@@ -137,7 +133,6 @@
       }
     }
 
-    // دالة الحساب عند كتابة الدرهم المغربي
     const madInput = document.getElementById('mad-input');
     const cnyInput = document.getElementById('cny-input');
 
@@ -150,7 +145,6 @@
       }
     }
 
-    // دالة الحساب عند كتابة اليوان الصيني
     function updateFromCny() {
       const cnyValue = parseFloat(cnyInput.value);
       if (!isNaN(cnyValue)) {
@@ -160,7 +154,6 @@
       }
     }
 
-    // الاستماع لمدخلات المستخدم في الخانات
     madInput.addEventListener('input', updateFromMad);
     cnyInput.addEventListener('input', updateFromCny);
 
@@ -186,7 +179,7 @@
     updateClocksAndPop();
 
     fetchLiveExchangeRate();
-    setInterval(fetchLiveExchangeRate, 3600000); // تحديث أسعار البورصة تلقائياً كل ساعة
+    setInterval(fetchLiveExchangeRate, 3600000); 
   </script>
 </body>
 </html>
