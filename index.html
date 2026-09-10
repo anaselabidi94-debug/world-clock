@@ -33,27 +33,32 @@
 <body>
   <div class="clock-container">
     <div class="clock-card">
-      <h2>المغرب 🇲🇦</h2>
-      <div id="morocco-time" class="time">00:00:00</div>
-      <div id="morocco-date" class="date">--/--/----</div>
+      <h2>فاس 🇲🇦</h2>
+      <div id="fez-time" class="time">00:00:00</div>
+      <div id="fez-date" class="date">--/--/----</div>
     </div>
     <div class="clock-card">
-      <h2>بكين 🇨🇳</h2>
-      <div id="china-time" class="time">00:00:00</div>
-      <div id="china-date" class="date">--/--/----</div>
+      <h2>هانزونغ 🇨🇳</h2>
+      <div id="hanzhong-time" class="time">00:00:00</div>
+      <div id="hanzhong-date" class="date">--/--/----</div>
     </div>
   </div>
   <script>
     function updateClocks() {
       const now = new Date();
-      const moroccoTimeStr = now.toLocaleTimeString('en-US', { timeZone: 'Africa/Casablanca', hour12: false });
-      const moroccoDateStr = now.toLocaleDateString('ar-MA', { timeZone: 'Africa/Casablanca', year: 'numeric', month: 'long', day: 'numeric' });
-      const chinaTimeStr = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Shanghai', hour12: false });
-      const chinaDateStr = now.toLocaleDateString('ar-EG', { timeZone: 'Asia/Shanghai', year: 'numeric', month: 'long', day: 'numeric' });
-      document.getElementById('morocco-time').textContent = moroccoTimeStr;
-      document.getElementById('morocco-date').textContent = moroccoDateStr;
-      document.getElementById('china-time').textContent = chinaTimeStr;
-      document.getElementById('china-date').textContent = chinaDateStr;
+      
+      // التوقيت والتاريخ الخاص بمدينة فاس (التوقيت الرسمي للمغرب)
+      const fezTimeStr = now.toLocaleTimeString('en-US', { timeZone: 'Africa/Casablanca', hour12: false });
+      const fezDateStr = now.toLocaleDateString('ar-MA', { timeZone: 'Africa/Casablanca', year: 'numeric', month: 'long', day: 'numeric' });
+      
+      // التوقيت والتاريخ الخاص بمدينة هانزونغ (التوقيت القياسي للصين CST)
+      const hanzhongTimeStr = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Shanghai', hour12: false });
+      const hanzhongDateStr = now.toLocaleDateString('ar-EG', { timeZone: 'Asia/Shanghai', year: 'numeric', month: 'long', day: 'numeric' });
+      
+      document.getElementById('fez-time').textContent = fezTimeStr;
+      document.getElementById('fez-date').textContent = fezDateStr;
+      document.getElementById('hanzhong-time').textContent = hanzhongTimeStr;
+      document.getElementById('hanzhong-date').textContent = hanzhongDateStr;
     }
     setInterval(updateClocks, 1000);
     updateClocks();
