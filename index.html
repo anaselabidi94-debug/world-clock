@@ -26,16 +26,6 @@
       color: white; text-align: center; margin: 0; font-size: 2.2rem;
       text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     }
-    
-    /* تصميم شريط المسافة وفارق التوقيت العلوي */
-    .distance-banner {
-      background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px);
-      padding: 15px 30px; border-radius: 50px; text-align: center; color: white;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); border: 1px solid rgba(255, 255, 255, 0.1);
-      font-size: 1.1rem; width: 90%; max-width: 760px; line-height: 1.6;
-    }
-    .distance-banner span { color: #ffeb3b; font-weight: bold; }
-
     .clock-container { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; }
     .clock-card {
       background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px);
@@ -46,6 +36,7 @@
     .time { font-size: 3rem; font-weight: bold; margin-bottom: 5px; }
     .date { font-size: 1.1rem; opacity: 0.8; }
     
+    /* تصميم قسم الطقس داخل بطاقة الساعة */
     .weather-box {
       margin-top: 15px; padding-top: 10px;
       border-top: 1px solid rgba(255, 255, 255, 0.2);
@@ -80,20 +71,15 @@
 
   <h1>مرحباً بكم في موقع معرفة الأوقات الخاص بي ✨</h1>
 
-  <!-- شريط المسافة الجغرافي والرسالة التفاعلية في الأعلى تماماً -->
-  <div class="distance-banner">
-    ✈️ المسافة بين فاس وهانزونغ حوالي <span>9,500 كلم</span> | ⏱️ هانزونغ تسبق فاس بـ <span>7 ساعات كاملة</span><br>
-    <span id="dynamic-message" style="color: #23d5ab; font-weight: normal; font-size: 0.95rem;">جاري تحليل الحالة الوقتية للمدينتين...</span>
-  </div>
-
+  <!-- قسم الساعات مع معلومات الطقس المباشرة -->
   <div class="clock-container">
     <div class="clock-card">
       <h2>فاس 🇲🇦</h2>
       <div id="morocco-time" class="time">00:00:00</div>
       <div id="morocco-date" class="date">--/--/----</div>
       <div class="weather-box">
-        <div id="fes-weather-desc">🌡️ درجة الحرارة الآن</div>
-        <div id="fes-weather-temp" class="weather-temp">جاري الجلب...</div>
+        <div id="fes-weather-desc">جاري جلب الطقس...</div>
+        <div id="fes-weather-temp" class="weather-temp">--°م</div>
       </div>
     </div>
     
@@ -102,15 +88,16 @@
       <div id="china-time" class="time">00:00:00</div>
       <div id="china-date" class="date">--/--/----</div>
       <div class="weather-box">
-        <div id="hanzhong-weather-desc">🌡️ درجة الحرارة الآن</div>
-        <div id="hanzhong-weather-temp" class="weather-temp">جاري الجلب...</div>
+        <div id="hanzhong-weather-desc">جاري جلب الطقس...</div>
+        <div id="hanzhong-weather-temp" class="weather-temp">--°م</div>
       </div>
     </div>
   </div>
 
+  <!-- قسم العداد وسعر الصرف -->
   <div class="info-container">
     <div class="info-card">
-      <h3>👥 عداد سكان الصين المباشر</h3>
+      <h3>👥 Docs عداد سكان الصين المباشر</h3>
       <div id="china-population" class="counter-val">1,412,262,052</div>
       <div class="update-time">تحديث فوري مستمر</div>
     </div>
@@ -139,22 +126,26 @@
     let madToCnyRate = 0.715;
     let cnyToMadRate = 1.395;
 
+    // دالة جلب الطقس المباشر من الإنترنت لفاس وهانزونغ
     async function fetchLiveWeather() {
+      // إحداثيات فاس وهانزونغ الجغرافية
       try {
         const fesRes = await fetch("https://open-meteo.com");
         if (fesRes.ok) {
-          const fesData = await fesRes.json();
+          const fesData = await fesRes.ok ? await fesRes.json() : null;
           document.getElementById('fes-weather-temp').textContent = Math.round(fesData.current_weather.temperature) + "°م";
+          document.getElementById('fes-weather-desc').textContent = "🌡️ الأجواء الحالية";
         }
-      } catch (e) { document.getElementById('fes-weather-temp').textContent = "26°م"; }
+      } catch (e) { document.getElementById('fes-weather-desc').textContent = "🌡️ طقس مستقر"; }
 
       try {
         const hzRes = await fetch("https://open-meteo.com");
         if (hzRes.ok) {
           const hzData = await hzRes.json();
           document.getElementById('hanzhong-weather-temp').textContent = Math.round(hzData.current_weather.temperature) + "°م";
+          document.getElementById('hanzhong-weather-desc').textContent = "🌧️ الأجواء الحالية";
         }
-      } catch (e) { document.getElementById('hanzhong-weather-temp').textContent = "22°م"; }
+      } catch (e) { document.getElementById('hanzhong-weather-desc').textContent = "🌤️ الأجواء الحالية"; }
     }
 
     async function fetchLiveExchangeRate() {
@@ -204,19 +195,6 @@
       const elapsedSeconds = Math.floor((now.getTime() - baseTime) / 1000);
       const currentPop = basePopulation + Math.floor(elapsedSeconds * 0.2); 
       document.getElementById('china-population').textContent = currentPop.toLocaleString('en-US');
-
-      // دالة لتغيير الرسالة التفاعلية حسب وقت المغرب الحالي بالذكاء
-      const moroccoHour = now.getUTCHours() + 1; // التوقيت الشتوي/الصيفي التقريبي للمغرب
-      const msgElement = document.getElementById('dynamic-message');
-      if (moroccoHour >= 12 && moroccoHour < 17) {
-        msgElement.textContent = "💬 بينما تتناول غداءك في فاس، يستعد سكان هانزونغ للخلود إلى النوم! 🌇🌙";
-      } else if (moroccoHour >= 17 && moroccoHour < 22) {
-        msgElement.textContent = "💬 أهل فاس يستمتعون بالمساء الآن، بينما منتصف الليل قد حلّ في هانزونغ! 🌌";
-      } else if (moroccoHour >= 22 || moroccoHour < 5) {
-        msgElement.textContent = "💬 هدوء الليل يعم مدينة فاس، بينما تشرق شمس الصباح الباكر في هانزونغ! 💤🌅";
-      } else {
-        msgElement.textContent = "💬 صباح الخير في فاس! في نفس الوقت، دخل سكان هانزونغ فترة بعد الظهر! ☀️🌆";
-      }
     }
 
     setInterval(updateClocksAndPop, 1000);
@@ -226,7 +204,7 @@
     setInterval(fetchLiveExchangeRate, 3600000); 
 
     fetchLiveWeather();
-    setInterval(fetchLiveWeather, 600000); 
+    setInterval(fetchLiveWeather, 600000); // تحديث الطقس تلقائياً كل 10 دقائق
   </script>
 </body>
 </html>
