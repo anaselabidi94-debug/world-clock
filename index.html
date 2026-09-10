@@ -86,7 +86,8 @@
 
     /* === بطاقة مواقيت الصلاة === */
     .prayer-card { width: 100%; padding: 20px 30px; box-sizing: border-box; }
-    .prayer-card h3 { margin: 0 0 15px 0; font-size: 1.3rem; }
+    .prayer-card h3 { margin: 0 0 5px 0; font-size: 1.3rem; }
+    .prayer-date-sub { font-size: 0.85rem; opacity: 0.85; margin-bottom: 15px; }
     .prayer-grid {
       display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
       gap: 10px; margin-bottom: 15px;
@@ -112,7 +113,8 @@
     }
     .monthly-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
     .monthly-table th, .monthly-table td { padding: 8px 6px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-    .monthly-table th { background: rgba(0, 0, 0, 0.3); position: sticky; top: 0; }
+    .monthly-table th { background: rgba(0, 0, 0, 0.4); position: sticky; top: 0; }
+    .today-row { background: rgba(255, 255, 255, 0.2); font-weight: bold; }
 
     /* === بطاقة محول العملات === */
     .converter-card { width: 100%; padding: 20px 30px; box-sizing: border-box; }
@@ -185,9 +187,11 @@
       </div>
     </div>
 
-    <!-- أوقات الصلاة لمدينة هانزونغ -->
+    <!-- أوقات الصلاة المتغيرة لمدينة هانزونغ -->
     <div class="prayer-card">
-      <h3 id="prayer-title">🕌 مواقيت الصلاة - هانزونغ</h3>
+      <h3>🕌 مواقيت الصلاة اليومية - هانزونغ</h3>
+      <div class="prayer-date-sub" id="prayer-date-label">جاري تحميل أوقات اليوم...</div>
+      
       <div class="prayer-grid">
         <div class="prayer-box"><div class="prayer-name">الفجر</div><div class="prayer-time" id="fajr">--:--</div></div>
         <div class="prayer-box"><div class="prayer-name">الشروق</div><div class="prayer-time" id="sunrise">--:--</div></div>
@@ -196,12 +200,14 @@
         <div class="prayer-box"><div class="prayer-name">المغرب</div><div class="prayer-time" id="maghrib">--:--</div></div>
         <div class="prayer-box"><div class="prayer-name">العشاء</div><div class="prayer-time" id="isha">--:--</div></div>
       </div>
-      <button class="toggle-btn" onclick="toggleMonthlyTable()">عرض/إخفاء جدول الشهر الكامل</button>
+
+      <button class="toggle-btn" onclick="toggleMonthlyTable()">عرض جدول المواقيت اليومية للشهر القادم</button>
+      
       <div class="monthly-container" id="monthlyContainer">
         <table class="monthly-table">
           <thead>
             <tr>
-              <th>اليوم</th>
+              <th>التاريخ</th>
               <th>الفجر</th>
               <th>الظهر</th>
               <th>العصر</th>
@@ -282,30 +288,28 @@
     setInterval(updatePopulation, 3000);
     updatePopulation();
 
-    // 4. أوقات الصلاة لهانزونغ (جلب تلقائي للشهر الحالي والتالي)
+    // 4. أوقات الصلاة المتغيرة اليومية والشهرية لمدينة هانزونغ
     async function fetchPrayerTimes() {
       try {
         const date = new Date();
         const year = date.getFullYear();
-        const month = date.getMonth() + 1; // الشهر الحالي
+        const month = date.getMonth() + 1;
+        const dayToday = date.getDate();
 
-        // جلب أوقات الشهر الحاضر والجمهور المتبقي
-        const response = await fetch(`https://api.aladhan.com/v1/calendar/${year}/${month}?latitude=33.0728&longitude=107.0303&method=3`);
-        const data = await response.json();
-        const monthData = data.data;
+        // 1. جلب أوقات اليوم الحالي وتحديثها بالدقة
+        const todayRes = await fetch(`https://api.aladhan.com/v1/timings/${dayToday}-${month}-${year}?latitude=33.0728&longitude=107.0303&method=3`);
+        const todayData = await todayRes.json();
+        const timings = todayData.data.timings;
 
-        // عرض اليوم الحالي
-        const dayIndex = date.getDate() - 1;
-        const todayTimings = monthData[dayIndex].timings;
+        document.getElementById('prayer-date-label').textContent = `توقيت اليوم: ${todayData.data.date.gregorian.date}`;
+        document.getElementById('fajr').textContent = timings.Fajr;
+        document.getElementById('sunrise').textContent = timings.Sunrise;
+        document.getElementById('dhuhr').textContent = timings.Dhuhr;
+        document.getElementById('asr').textContent = timings.Asr;
+        document.getElementById('maghrib').textContent = timings.Maghrib;
+        document.getElementById('isha').textContent = timings.Isha;
 
-        document.getElementById('fajr').textContent = todayTimings.Fajr.split(' ')[0];
-        document.getElementById('sunrise').textContent = todayTimings.Sunrise.split(' ')[0];
-        document.getElementById('dhuhr').textContent = todayTimings.Dhuhr.split(' ')[0];
-        document.getElementById('asr').textContent = todayTimings.Asr.split(' ')[0];
-        document.getElementById('maghrib').textContent = todayTimings.Maghrib.split(' ')[0];
-        document.getElementById('isha').textContent = todayTimings.Isha.split(' ')[0];
-
-        // جلب الشهر القادم للجدول التفصيلي
+        // 2. جلب جدول الشهر القادم بأكمله وعرض كل يوم بمواعيذه المتغيرة
         let nextMonth = month + 1;
         let nextYear = year;
         if (nextMonth > 12) { nextMonth = 1; nextYear++; }
@@ -313,21 +317,21 @@
         const nextMonthRes = await fetch(`https://api.aladhan.com/v1/calendar/${nextYear}/${nextMonth}?latitude=33.0728&longitude=107.0303&method=3`);
         const nextMonthData = await nextMonthRes.json();
 
-        renderMonthlyTable(nextMonthData.data, nextMonth, nextYear);
+        renderMonthlyTable(nextMonthData.data);
       } catch (err) {
         console.error('خطأ في جلب مواقيت الصلاة:', err);
       }
     }
 
-    function renderMonthlyTable(days, month, year) {
+    function renderMonthlyTable(days) {
       const tbody = document.getElementById('monthlyTableBody');
-      document.getElementById('prayer-title').textContent = `🕌 مواقيت الصلاة - هانزونغ (شهر ${month}/${year})`;
       tbody.innerHTML = '';
       
       days.forEach(day => {
         const row = document.createElement('tr');
         const t = day.timings;
-        const dateStr = day.date.gregorian.day;
+        const dateStr = day.date.gregorian.date;
+        
         row.innerHTML = `
           <td>${dateStr}</td>
           <td>${t.Fajr.split(' ')[0]}</td>
