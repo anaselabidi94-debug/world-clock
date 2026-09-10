@@ -13,47 +13,96 @@
       background-size: 400% 400%;
       animation: gradient 15s ease infinite;
       direction: rtl;
+      position: relative;
+      box-sizing: border-box;
+      padding-top: 80px;
     }
     @keyframes gradient {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
+    
+    /* تثبيت العنوان في أعلى الصفحة تماماً */
     .main-title {
+      position: absolute;
+      top: 20px;
+      left: 0;
+      right: 0;
+      margin: 0 auto;
       color: white;
-      font-size: 2.2rem;
-      margin-bottom: 30px;
+      font-size: 2rem;
       text-align: center;
       text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      width: 100%;
     }
-    .clock-container { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; }
+
+    .clock-container { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
+    
     .clock-card {
       background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px);
-      padding: 30px 50px; border-radius: 20px; text-align: center; color: white; min-width: 200px;
+      padding: 25px 40px; border-radius: 20px; text-align: center; color: white; min-width: 250px;
       box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2); border: 1px solid rgba(255, 255, 255, 0.18);
     }
+    
     .clock-card h2 { margin: 0 0 10px 0; font-size: 1.8rem; }
-    .time { font-size: 3rem; font-weight: bold; margin-bottom: 5px; }
-    .date { font-size: 1.1rem; opacity: 0.8; }
+    
+    .temp-badge {
+      display: inline-block;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+    
+    .time { font-size: 2.8rem; font-weight: bold; margin-bottom: 5px; }
+    .date { font-size: 1rem; opacity: 0.85; margin-bottom: 15px; }
+    
+    .pop-section {
+      border-top: 1px solid rgba(255, 255, 255, 0.3);
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+    
+    .pop-label { font-size: 0.85rem; opacity: 0.9; }
+    .pop-count { font-size: 1.3rem; font-weight: bold; color: #fff; }
   </style>
 </head>
 <body>
+  
   <h1 class="main-title">تطبيق أَنَس لأوقات المغرب والصين</h1>
 
   <div class="clock-container">
+    <!-- بطاقة فاس (المغرب) -->
     <div class="clock-card">
       <h2>فاس 🇲🇦</h2>
+      <div id="fez-temp" class="temp-badge">جاري جلب الطقس...</div>
       <div id="fez-time" class="time">00:00:00</div>
       <div id="fez-date" class="date">--/--/----</div>
+      
+      <div class="pop-section">
+        <div class="pop-label">عدد سكان المغرب (مباشر)</div>
+        <div id="morocco-pop" class="pop-count">--</div>
+      </div>
     </div>
+
+    <!-- بطاقة هانزونغ (الصين) -->
     <div class="clock-card">
       <h2>هانزونغ 🇨🇳</h2>
+      <div id="hanzhong-temp" class="temp-badge">جاري جلب الطقس...</div>
       <div id="hanzhong-time" class="time">00:00:00</div>
       <div id="hanzhong-date" class="date">--/--/----</div>
+      
+      <div class="pop-section">
+        <div class="pop-label">عدد سكان الصين (مباشر)</div>
+        <div id="china-pop" class="pop-count">--</div>
+      </div>
     </div>
   </div>
 
   <script>
+    // 1. تحديث الوقت والتاريخ
     function updateClocks() {
       const now = new Date();
       
@@ -70,6 +119,41 @@
     }
     setInterval(updateClocks, 1000);
     updateClocks();
+
+    // 2. جلب درجة الحرارة الفعلية المباشرة (Open-Meteo API)
+    async function fetchWeather() {
+      try {
+        // فاس: Latitude: 34.0333, Longitude: -5.0000
+        const fezRes = await fetch('https://api.open-meteo.com/v1/forecast?latitude=34.0333&longitude=-5.0000&current_weather=true');
+        const fezData = await fezRes.json();
+        document.getElementById('fez-temp').textContent = `🌡️ ${fezData.current_weather.temperature}°C`;
+
+        // هانزونغ: Latitude: 33.0728, Longitude: 107.0303
+        const hanRes = await fetch('https://api.open-meteo.com/v1/forecast?latitude=33.0728&longitude=107.0303&current_weather=true');
+        const hanData = await hanRes.json();
+        document.getElementById('hanzhong-temp').textContent = `🌡️ ${hanData.current_weather.temperature}°C`;
+      } catch (err) {
+        document.getElementById('fez-temp').textContent = '🌡️ -- °C';
+        document.getElementById('hanzhong-temp').textContent = '🌡️ -- °C';
+      }
+    }
+    fetchWeather();
+    setInterval(fetchWeather, 600000); // تحديث الطقس كل 10 دقائق
+
+    // 3. محاكاة العداد المباشر للسكان
+    let moroccoPop = 38000000;
+    let chinaPop = 1411750000;
+
+    function updatePopulation() {
+      // إضافات عشوائية لمحاكاة نمو السكان المباشر
+      if (Math.random() > 0.6) moroccoPop += 1;
+      if (Math.random() > 0.3) chinaPop += Math.floor(Math.random() * 2);
+
+      document.getElementById('morocco-pop').textContent = moroccoPop.toLocaleString('ar-EG');
+      document.getElementById('china-pop').textContent = chinaPop.toLocaleString('ar-EG');
+    }
+    setInterval(updatePopulation, 3000);
+    updatePopulation();
   </script>
 </body>
 </html>
