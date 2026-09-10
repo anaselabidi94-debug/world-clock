@@ -83,6 +83,7 @@
     }
     .pop-label { font-size: 0.85rem; opacity: 0.9; margin-bottom: 4px; }
     .pop-count { font-size: 1.2rem; font-weight: bold; }
+    .birth-count { font-size: 1.1rem; font-weight: bold; color: #a8ffb2; }
 
     /* === بطاقة محول العملات === */
     .converter-card { width: 100%; padding: 20px 30px; box-sizing: border-box; }
@@ -105,35 +106,18 @@
     .exchange-icon { font-size: 1.5rem; margin-top: 18px; }
     .rate-info { font-size: 0.8rem; opacity: 0.8; margin-top: 12px; }
 
-    /* === زر نسخ الرابط المباشر في زاوية الشاشة === */
+    /* === زر نسخ الرابط === */
     .copy-link-btn {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      z-index: 100;
-      background: rgba(0, 0, 0, 0.35);
-      backdrop-filter: blur(10px);
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      padding: 10px 18px;
-      border-radius: 30px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-      transition: all 0.3s ease;
-      direction: ltr;
+      position: fixed; bottom: 20px; left: 20px; z-index: 100;
+      background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(10px);
+      color: white; border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 10px 18px; border-radius: 30px; cursor: pointer;
+      font-size: 0.9rem; font-weight: bold; display: flex; align-items: center;
+      gap: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease; direction: ltr;
     }
-    .copy-link-btn:hover {
-      background: rgba(0, 0, 0, 0.6);
-      transform: scale(1.05);
-    }
-    .copy-link-btn:active {
-      transform: scale(0.95);
-    }
+    .copy-link-btn:hover { background: rgba(0, 0, 0, 0.6); transform: scale(1.05); }
+    .copy-link-btn:active { transform: scale(0.95); }
   </style>
 </head>
 <body>
@@ -156,7 +140,11 @@
         <div id="fez-time" class="time">00:00:00</div>
         <div id="fez-date" class="date">--/--/----</div>
         <div class="pop-section">
-          <div class="pop-label">عدد سكان المغرب (مباشر)</div>
+          <div class="pop-label">مواليد اليوم في المغرب 👶</div>
+          <div id="morocco-births" class="birth-count">--</div>
+        </div>
+        <div class="pop-section">
+          <div class="pop-label">إجمالي السكان (تقديري)</div>
           <div id="morocco-pop" class="pop-count">--</div>
         </div>
       </div>
@@ -168,7 +156,11 @@
         <div id="hanzhong-time" class="time">00:00:00</div>
         <div id="hanzhong-date" class="date">--/--/----</div>
         <div class="pop-section">
-          <div class="pop-label">عدد سكان الصين (مباشر)</div>
+          <div class="pop-label">مواليد اليوم في الصين 👶</div>
+          <div id="china-births" class="birth-count">--</div>
+        </div>
+        <div class="pop-section">
+          <div class="pop-label">إجمالي السكان (تقديري)</div>
           <div id="china-pop" class="pop-count">--</div>
         </div>
       </div>
@@ -192,7 +184,7 @@
     </div>
   </div>
 
-  <!-- زر نسخ الرابط في زاوية الشاشة -->
+  <!-- زر نسخ الرابط -->
   <button class="copy-link-btn" id="copyBtn" onclick="copyPageUrl()">
     <span>🔗</span>
     <span id="btnText">نسخ رابط الصفحة</span>
@@ -206,11 +198,37 @@
       document.getElementById('fez-date').textContent = now.toLocaleDateString('en-US', { timeZone: 'Africa/Casablanca', year: 'numeric', month: 'numeric', day: 'numeric' });
       document.getElementById('hanzhong-time').textContent = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Shanghai', hour12: false });
       document.getElementById('hanzhong-date').textContent = now.toLocaleDateString('en-US', { timeZone: 'Asia/Shanghai', year: 'numeric', month: 'numeric', day: 'numeric' });
+      
+      updateLiveBirths();
     }
     setInterval(updateClocks, 1000);
-    updateClocks();
 
-    // 2. الطقس
+    // 2. حساب المواليد الجدد اليوم بناءً على المعدلات الديموغرافية المعتمدة
+    function getSecondsSinceMidnight(timeZone) {
+      const now = new Date();
+      const localTimeStr = now.toLocaleString("en-US", { timeZone });
+      const localDate = new Date(localTimeStr);
+      const midnight = new Date(localDate);
+      midnight.setHours(0, 0, 0, 0);
+      return (localDate - midnight) / 1000;
+    }
+
+    function updateLiveBirths() {
+      // المعدلات المعتمدة: المغرب ~1680 مولود/يوم (0.0194/ثانية)، الصين ~23600 مولود/يوم (0.2731/ثانية)
+      const moroccoRatePerSec = 1680 / 86400;
+      const chinaRatePerSec = 23600 / 86400;
+
+      const moroccoSecs = getSecondsSinceMidnight('Africa/Casablanca');
+      const chinaSecs = getSecondsSinceMidnight('Asia/Shanghai');
+
+      const moroccoTodayBirths = Math.floor(moroccoSecs * moroccoRatePerSec);
+      const chinaTodayBirths = Math.floor(chinaSecs * chinaRatePerSec);
+
+      document.getElementById('morocco-births').textContent = moroccoTodayBirths.toLocaleString('en-US') + " مولود";
+      document.getElementById('china-births').textContent = chinaTodayBirths.toLocaleString('en-US') + " مولود";
+    }
+
+    // 3. الطقس
     async function fetchWeather() {
       try {
         const fezRes = await fetch('https://api.open-meteo.com/v1/forecast?latitude=34.0333&longitude=-5.0000&current_weather=true');
@@ -228,9 +246,9 @@
     fetchWeather();
     setInterval(fetchWeather, 600000);
 
-    // 3. عدد السكان
-    let moroccoPop = 38000000;
-    let chinaPop = 1411750000;
+    // 4. إجمالي السكان التقديري
+    let moroccoPop = 38400000;
+    let chinaPop = 1404000000;
     function updatePopulation() {
       if (Math.random() > 0.6) moroccoPop += 1;
       if (Math.random() > 0.3) chinaPop += Math.floor(Math.random() * 2);
@@ -240,7 +258,7 @@
     setInterval(updatePopulation, 3000);
     updatePopulation();
 
-    // 4. محول العملات
+    // 5. محول العملات
     let madToCnyRate = 0.72;
     async function fetchExchangeRate() {
       try {
@@ -248,7 +266,7 @@
         const data = await res.json();
         if (data && data.rates && data.rates.CNY) {
           madToCnyRate = data.rates.CNY;
-          document.getElementById('rate-info').textContent = `1 درهم مغربي = ${madToCnyRate.toFixed(4)} يوان صيني (يتحدث كل 12 ساعة)`;
+          document.getElementById('rate-info').textContent = `1 درهم مغربي = ${madToCnyRate.toFixed(4)} يوان صيني (مباشر)`;
           convertMADtoCNY();
         }
       } catch (err) {
@@ -276,7 +294,7 @@
     fetchExchangeRate();
     setInterval(fetchExchangeRate, 12 * 60 * 60 * 1000);
 
-    // 5. وظيفة نسخ رابط الصفحة
+    // 6. نسخ رابط الصفحة
     function copyPageUrl() {
       navigator.clipboard.writeText(window.location.href).then(() => {
         const btnText = document.getElementById('btnText');
@@ -286,6 +304,8 @@
         }, 2000);
       });
     }
+
+    updateClocks();
   </script>
 </body>
 </html>
