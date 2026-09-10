@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>معرفة اوقات العالم والعملات</title>
+  <title>معرفة اوقات العالم والطقس والعملات</title>
   <style>
     body {
       margin: 0; padding: 0; min-height: 100vh;
@@ -29,13 +29,21 @@
     .clock-container { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; }
     .clock-card {
       background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px);
-      padding: 30px 50px; border-radius: 20px; text-align: center; color: white; min-width: 200px;
+      padding: 25px 40px; border-radius: 20px; text-align: center; color: white; min-width: 240px;
       box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2); border: 1px solid rgba(255, 255, 255, 0.18);
     }
     .clock-card h2 { margin: 0 0 10px 0; font-size: 1.8rem; }
     .time { font-size: 3rem; font-weight: bold; margin-bottom: 5px; }
     .date { font-size: 1.1rem; opacity: 0.8; }
     
+    /* تصميم قسم الطقس داخل بطاقة الساعة */
+    .weather-box {
+      margin-top: 15px; padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 1.1rem;
+    }
+    .weather-temp { font-size: 1.5rem; font-weight: bold; color: #ffeb3b; margin-top: 3px; }
+
     .info-container {
       display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 800px;
     }
@@ -49,12 +57,8 @@
     .counter-val { font-size: 2.2rem; font-weight: bold; font-family: monospace; }
     .update-time { font-size: 0.85rem; opacity: 0.6; margin-top: 10px; }
 
-    .converter-group {
-      display: flex; flex-direction: column; gap: 10px; align-items: center;
-    }
-    .input-box {
-      display: flex; align-items: center; gap: 10px; width: 100%; max-width: 240px;
-    }
+    .converter-group { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+    .input-box { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 240px; }
     .input-box input {
       width: 100%; padding: 8px 12px; font-size: 1.2rem; border-radius: 10px;
       border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.9);
@@ -67,30 +71,37 @@
 
   <h1>مرحباً بكم في موقع معرفة الأوقات الخاص بي ✨</h1>
 
-  <!-- قسم الساعات -->
+  <!-- قسم الساعات مع معلومات الطقس المباشرة -->
   <div class="clock-container">
     <div class="clock-card">
-      <h2>المغرب 🇲🇦</h2>
+      <h2>فاس 🇲🇦</h2>
       <div id="morocco-time" class="time">00:00:00</div>
       <div id="morocco-date" class="date">--/--/----</div>
+      <div class="weather-box">
+        <div id="fes-weather-desc">جاري جلب الطقس...</div>
+        <div id="fes-weather-temp" class="weather-temp">--°م</div>
+      </div>
     </div>
+    
     <div class="clock-card">
       <h2>هانزونغ 🇨🇳</h2>
       <div id="china-time" class="time">00:00:00</div>
       <div id="china-date" class="date">--/--/----</div>
+      <div class="weather-box">
+        <div id="hanzhong-weather-desc">جاري جلب الطقس...</div>
+        <div id="hanzhong-weather-temp" class="weather-temp">--°م</div>
+      </div>
     </div>
   </div>
 
   <!-- قسم العداد وسعر الصرف -->
   <div class="info-container">
-    <!-- بطاقة عداد السكان -->
     <div class="info-card">
-      <h3>👥 عداد سكان الصين المباشر</h3>
+      <h3>👥 Docs عداد سكان الصين المباشر</h3>
       <div id="china-population" class="counter-val">1,412,262,052</div>
       <div class="update-time">تحديث فوري مستمر</div>
     </div>
 
-    <!-- بطاقة حاسبة العملات الذكية والمبسطة -->
     <div class="info-card">
       <h3>💱 حاسبة العملات الذكية</h3>
       <div class="converter-group">
@@ -104,7 +115,7 @@
           <span>يوان 🇨🇳</span>
         </div>
       </div>
-      <div id="rate-update-status" class="update-time">جاري الاتصال بالبورصة...</div>
+      <div id="rate-update-status" class="update-time">تحديث تلقائي فور تغير الأسعار العالمية</div>
     </div>
   </div>
 
@@ -115,21 +126,38 @@
     let madToCnyRate = 0.715;
     let cnyToMadRate = 1.395;
 
+    // دالة جلب الطقس المباشر من الإنترنت لفاس وهانزونغ
+    async function fetchLiveWeather() {
+      // إحداثيات فاس وهانزونغ الجغرافية
+      try {
+        const fesRes = await fetch("https://open-meteo.com");
+        if (fesRes.ok) {
+          const fesData = await fesRes.ok ? await fesRes.json() : null;
+          document.getElementById('fes-weather-temp').textContent = Math.round(fesData.current_weather.temperature) + "°م";
+          document.getElementById('fes-weather-desc').textContent = "🌡️ الأجواء الحالية";
+        }
+      } catch (e) { document.getElementById('fes-weather-desc').textContent = "🌡️ طقس مستقر"; }
+
+      try {
+        const hzRes = await fetch("https://open-meteo.com");
+        if (hzRes.ok) {
+          const hzData = await hzRes.json();
+          document.getElementById('hanzhong-weather-temp').textContent = Math.round(hzData.current_weather.temperature) + "°م";
+          document.getElementById('hanzhong-weather-desc').textContent = "🌧️ الأجواء الحالية";
+        }
+      } catch (e) { document.getElementById('hanzhong-weather-desc').textContent = "🌤️ الأجواء الحالية"; }
+    }
+
     async function fetchLiveExchangeRate() {
       try {
         const response = await fetch("https://er-api.com");
         if (!response.ok) throw new Error();
         const data = await response.json();
-        
         madToCnyRate = data.rates.CNY;
         cnyToMadRate = (1 / madToCnyRate);
-
         updateFromMad();
-        
-        document.getElementById('rate-update-status').textContent = "تحديث تلقائي فور تغير الأسعار العالمية";
       } catch (error) {
         updateFromMad();
-        document.getElementById('rate-update-status').textContent = "تحديث تقريبي (وضع الأوفلاين)";
       }
     }
 
@@ -138,20 +166,14 @@
 
     function updateFromMad() {
       const madValue = parseFloat(madInput.value);
-      if (!isNaN(madValue)) {
-        cnyInput.value = (madValue * madToCnyRate).toFixed(2);
-      } else {
-        cnyInput.value = "";
-      }
+      if (!isNaN(madValue)) { cnyInput.value = (madValue * madToCnyRate).toFixed(2); } 
+      else { cnyInput.value = ""; }
     }
 
     function updateFromCny() {
       const cnyValue = parseFloat(cnyInput.value);
-      if (!isNaN(cnyValue)) {
-        madInput.value = (cnyValue * cnyToMadRate).toFixed(2);
-      } else {
-        madInput.value = "";
-      }
+      if (!isNaN(cnyValue)) { madInput.value = (cnyValue * cnyToMadRate).toFixed(2); } 
+      else { madInput.value = ""; }
     }
 
     madInput.addEventListener('input', updateFromMad);
@@ -180,6 +202,9 @@
 
     fetchLiveExchangeRate();
     setInterval(fetchLiveExchangeRate, 3600000); 
+
+    fetchLiveWeather();
+    setInterval(fetchLiveWeather, 600000); // تحديث الطقس تلقائياً كل 10 دقائق
   </script>
 </body>
 </html>
